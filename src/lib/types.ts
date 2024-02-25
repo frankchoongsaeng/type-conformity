@@ -64,4 +64,3 @@ export interface ObjectDecoder<T> extends Decoder<T> {
  * utilities for working with Optionals in a functional and type safe manner.
  */
 export type Optional<T> = T | null | undefined;
-export const None: Optional<never> = Symbol("none for optional");

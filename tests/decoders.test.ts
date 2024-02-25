@@ -13,8 +13,8 @@ import {
     asTuple2,
     asTuple3,
     asUndefined,
-} from "../lib/decoders";
-import { success, failure } from "../lib/utils";
+} from "../src/lib/decoders";
+import { success, failure } from "../src/lib/utils";
 
 describe("decoders", () => {
     test("asUndefined.decode", () => {

@@ -7,7 +7,7 @@ import {
     asOneOf,
     asString,
 } from "../src/lib/decoders";
-import { Decoder } from "../src/types";
+import { Decoder } from "../src/lib/types";
 
 // USAGE EXAMPLES
 type ExampleObjectType = {

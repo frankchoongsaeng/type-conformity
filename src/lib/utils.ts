@@ -6,8 +6,14 @@ import {
     Key,
     Merge,
     ObjectDecoder,
-} from "../types";
+} from "./types";
 
+/**
+ * Constructs a DecodingSuccess of type T that wraps a value of type T.
+ *
+ * @param v value
+ * @returns A DecodingSuccess object
+ */
 export function success<T>(v: T): DecodingSuccess<T> {
     return {
         kind: "success",
@@ -15,10 +21,16 @@ export function success<T>(v: T): DecodingSuccess<T> {
     };
 }
 
-export function failure(message: string): DecodingFailure {
+/**
+ * Constructs a DecodingFailure object with a reason.
+ *
+ * @param reason reason for the decoding failure
+ * @returns a DecodingFailure object
+ */
+export function failure(reason: string): DecodingFailure {
     return {
         kind: "failure",
-        reason: message,
+        reason: reason,
     };
 }
 
@@ -117,6 +129,13 @@ type TypeOf =
     | "array"
     | "null";
 
+/**
+ * An extension of the native javascript `typeof` test that differentiates
+ * between null and arrays as thier own type.
+ *
+ * @param arg value
+ * @returns string representation of the type of value
+ */
 export function typeOf(arg: any): TypeOf {
     if (arg === null) {
         return "null";

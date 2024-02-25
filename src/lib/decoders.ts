@@ -6,7 +6,7 @@ import {
     Merge,
     ObjectDecoder,
     Optional,
-} from "../types";
+} from "./types";
 import {
     failure,
     objectDecoderHelper,
@@ -91,6 +91,12 @@ export const asBoolean: Decoder<boolean> = {
 /**
  * A decoder for objects, with additional methods that are used to specify decoders for fields.
  *
+ * An object decoder will and can decode from any object that is a superset of this object without failure.
+ * This means that using a decoder that decodes two string fields on an object with 10 string fields will
+ * succeed provided that the two fields it expects are among those 10 fields.
+ *
+ * The decoded value will always be exactly what was specified. No more, no less.
+ *
  * example:
  * ```
  * asObject
@@ -140,19 +146,19 @@ export const asObject: ObjectDecoder<{}> = {
  * Takes a decoder for T, and produces a decoder that knows how to decode an
  * array of T elements, using the provided decoder.
  *
- * @param itemCodec A decoder for the items of the array
+ * @param itemDecoder A decoder for the items of the array
  * @returns A decoder for an Array of T items
  */
-export function asArray<T>(itemCodec: Decoder<T>): Decoder<Array<T>> {
+export function asArray<T>(itemDecoder: Decoder<T>): Decoder<Array<T>> {
     return {
-        name: `Array<${itemCodec.name}>`,
+        name: `Array<${itemDecoder.name}>`,
         decode(arr): DecodingResult<Array<T>> {
             if (Array.isArray(arr)) {
                 const errors: string[] = [];
                 const values: any[] = [];
 
                 arr.forEach((item: any, idx) => {
-                    const result = itemCodec.decode(item);
+                    const result = itemDecoder.decode(item);
 
                     if (result.kind === "success") {
                         values.push(result.value);
@@ -174,7 +180,7 @@ export function asArray<T>(itemCodec: Decoder<T>): Decoder<Array<T>> {
         },
         test(arr) {
             return (
-                Array.isArray(arr) && arr.every(item => itemCodec.test(item))
+                Array.isArray(arr) && arr.every(item => itemDecoder.test(item))
             );
         },
     };
@@ -309,23 +315,23 @@ export function asTuple3<T1, T2, T3>(
  * asOneOf(asString, asOneOf(asNumber, asBoolean)) // produces a decoder for string | number | boolean
  * ```
  *
- * @param firstCodec decoder for first type T
- * @param nextCodec decoder for next type U
+ * @param firstDecoder decoder for first type T
+ * @param nextDecoder decoder for next type U
  * @returns A decoder for decoding T | U
  */
 export function asOneOf<T, U>(
-    firstCodec: Decoder<T>,
-    nextCodec: Decoder<U>,
+    firstDecoder: Decoder<T>,
+    nextDecoder: Decoder<U>,
 ): Decoder<T | U> {
     return {
-        name: `${firstCodec.name} | ${nextCodec.name}`,
+        name: `${firstDecoder.name} | ${nextDecoder.name}`,
         decode(arg): DecodingResult<T | U> {
-            const first = firstCodec.decode(arg);
+            const first = firstDecoder.decode(arg);
             if (first.kind === "success") {
                 return first;
             }
 
-            const next = nextCodec.decode(arg);
+            const next = nextDecoder.decode(arg);
             if (next.kind === "success") {
                 return next;
             }
@@ -335,7 +341,7 @@ export function asOneOf<T, U>(
             );
         },
         test(arg) {
-            return firstCodec.test(arg) || nextCodec.test(arg);
+            return firstDecoder.test(arg) || nextDecoder.test(arg);
         },
     };
 }
@@ -354,20 +360,20 @@ export function asOneOf<T, U>(
  *  asBothOf<Foo, Bar>(asFoo, asBar) // produces an object decoder for Foo & Bar
  *  ```
  *
- * @param firstCodec decoder for first type T
- * @param nextCodec decoder for next type U
+ * @param firstDecoder decoder for first type T
+ * @param nextDecoder decoder for next type U
  * @returns A decoder for decoding T | U
  */
 export function asBothOf<T, U>(
-    firstCodec: ObjectDecoder<T>,
-    nextCodec: ObjectDecoder<U>,
+    firstDecoder: ObjectDecoder<T>,
+    nextDecoder: ObjectDecoder<U>,
 ): ObjectDecoder<T & U> {
     return {
         get name() {
-            return `${firstCodec.name} & ${nextCodec.name}`;
+            return `${firstDecoder.name} & ${nextDecoder.name}`;
         },
         get fields() {
-            return [...firstCodec.fields, ...nextCodec.fields];
+            return [...firstDecoder.fields, ...nextDecoder.fields];
         },
         withField(name, fieldDecoder) {
             return withFieldHelper(this, name, fieldDecoder);
@@ -388,7 +394,7 @@ export function asBothOf<T, U>(
             return objectDecoderHelper(arg, this);
         },
         test(arg) {
-            return firstCodec.test(arg) && nextCodec.test(arg);
+            return firstDecoder.test(arg) && nextDecoder.test(arg);
         },
     };
 }
@@ -443,16 +449,16 @@ export function asLiteral<L extends string | number | boolean>(
  * Takes a decoder for an item of type T and returns a decoder for a
  * special Optional<T>
  *
- * @param itemCodec decoder for item T
+ * @param itemDecoder decoder for item T
  * @returns decoder for optional T
  */
-export function asOptional<T>(itemCodec: Decoder<T>): Decoder<Optional<T>> {
+export function asOptional<T>(itemDecoder: Decoder<T>): Decoder<Optional<T>> {
     return asCustom(
-        asOneOf(asUndefined, asOneOf(asNull, itemCodec)).decode,
+        asOneOf(asUndefined, asOneOf(asNull, itemDecoder)).decode,
         arg => {
-            return arg === null || arg === undefined || itemCodec.test(arg);
+            return arg === null || arg === undefined || itemDecoder.test(arg);
         },
-        `Optional<${itemCodec.name}>`,
+        `Optional<${itemDecoder.name}>`,
     );
 }
 
@@ -471,8 +477,8 @@ export function asOptional<T>(itemCodec: Decoder<T>): Decoder<Optional<T>> {
  *}, 'status decoder')
  * ```
  * @param decodeFn a decode function use in decoding a value to type T
- * @param name optional name of your custom codec
- * @returns a new Codec<T>
+ * @param name an optional name of your custom decoder
+ * @returns a new Decoder<T>
  */
 export function asCustom<T>(
     decodeFn: (arg: any) => DecodingResult<T>,
