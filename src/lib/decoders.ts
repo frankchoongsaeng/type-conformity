@@ -476,7 +476,8 @@ export function asOptional<T>(itemDecoder: Decoder<T>): Decoder<Optional<T>> {
  *      return failure(`failed to decode value, expected one of 'accepted', 'rejected', 'in-review' but got ${value}`)
  *}, 'status decoder')
  * ```
- * @param decodeFn a decode function use in decoding a value to type T
+ * @param decodeFn a decode function used in decoding a value to type T
+ * @param testFn an optional test function used in testing a value for conformity to type T
  * @param name an optional name of your custom decoder
  * @returns a new Decoder<T>
  */
