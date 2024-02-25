@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "tsdoc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
+        "generate-api-doc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
         "postpublish": "npm test && npm run build",
         "test": "jest",
         "prepare": "husky"
