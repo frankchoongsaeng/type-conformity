@@ -39,7 +39,7 @@ yarn add type-conformity
 Define a simple decoder using TypeConformity's provided functions. For example, to define a decoder for a string:
 
 ```typescript
-import { asString, success, failure } from "type-conformity";
+import { asString } from "type-conformity";
 
 const stringDecoder = asString;
 
@@ -56,7 +56,7 @@ In this example, `asString` creates a decoder for strings. The decode method is 
 
 ### Advanced Usage
 
-Create more complex decoders by combining simpler ones using functions like asOneOf, asBothOf, asArray, etc. For instance, to define a decoder for an object with specific fields:
+Create more complex decoders by combining simpler ones using functions like `asOneOf`, `asBothOf`, `asArray`, etc. For instance, to define a decoder for an object with specific fields:
 
 ```typescript
 import { asObject, asString, asNumber } from "type-conformity";
@@ -74,7 +74,7 @@ if (result.kind === "success") {
 }
 ```
 
-Here, `asObject` creates a decoder for objects, and withField specifies the fields and their respective decoders. The resulting asPerson can then be used to validate objects with a name string field and an age number field.
+Here, `asObject` creates a decoder for objects, and `withField` specifies the fields and their respective decoders. The resulting `asPerson` decoder can then be used to validate objects with a name-string-field and an age-number-field.
 
 ### Custom Decoders
 
@@ -99,16 +99,19 @@ if (result.kind === "success") {
 }
 ```
 
-In this case, asCustom allows defining a custom decoding function that checks if the input value is a positive integer.
+In this case, `asCustom` allows defining a custom decoding function that checks if the input value is a positive integer.
 
-TypeConformity empowers developers to create robust data validation pipelines, ensuring data quality and system reliability. With its intuitive syntax and powerful features, it's a valuable tool for any TypeScript project aiming to maintain clean and reliable data.
+TypeConformity empowers you to create robust data validation pipelines, that can ensure data quality and system reliability.
+Its designed to have an intuitive syntax that makes defining data validation rules easy.
+It's a valuable tool for any TypeScript or JavaScript project aiming to maintain clean and reliable data.
 
 ### Caveats
 
 #### TypeScript Objects are compatible if one is a subset of the other
 
 The `asObject` decoder figures out the typescript type of the decoder based on what fields and decoders have been composed so far.
-When calling `withField` it knows to update the typescript type of the decoder with the new field and it's corresponding type.
+
+When you call `withField`, it knows to update the typescript type of the decoder with the new field and it's corresponding type.
 
 ```ts
 interface User {
@@ -119,8 +122,8 @@ interface User {
 const asUser: Decoder<User> = asObject
     .withField("name", asString)
     .withField("age", asString);
-// ts-error because age in User is number
-// but has been specified as String here
+// ts-error because age in User is number type,
+// but has been specified as string type here.
 ```
 
 This is a really cool feature but doesn't work so well when you create a decoder with additonal fields.

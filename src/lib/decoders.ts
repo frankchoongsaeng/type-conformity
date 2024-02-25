@@ -98,7 +98,7 @@ export const asBoolean: Decoder<boolean> = {
  * The decoded value will always be exactly what was specified. No more, no less.
  *
  * example:
- * ```
+ * ```ts
  * asObject
  *  .withField("field1", asString) // decoder for { field1: string }
  *  .withField("field2", asBoolean) // decoder for { field1: string, field2: boolean }
@@ -310,7 +310,7 @@ export function asTuple3<T1, T2, T3>(
  *
  * Useful for composing decoders that can decode many types
  * example:
- * ```
+ * ```ts
  * asOneOf(asString, asNumber) // produces a decoder for string | number
  * asOneOf(asString, asOneOf(asNumber, asBoolean)) // produces a decoder for string | number | boolean
  * ```
@@ -352,13 +352,13 @@ export function asOneOf<T, U>(
  * Useful for composing decoders that decode a larger object.
  *
  * example:
+ * ```ts
+ * type Foo = { foo: String }
+ * type Bar = { bar: boolean }
+ * const asFoo = asObject.withField("foo", asString)
+ * const asBar = asObject.withField("bar", asBoolean)
+ * asBothOf<Foo, Bar>(asFoo, asBar) // produces an object decoder for Foo & Bar
  * ```
- *  type Foo = { foo: String }
- *  type Bar = { bar: boolean }
- *  const asFoo = asObject.withField("foo", asString)
- *  const asBar = asObject.withField("bar", asBoolean)
- *  asBothOf<Foo, Bar>(asFoo, asBar) // produces an object decoder for Foo & Bar
- *  ```
  *
  * @param firstDecoder decoder for first type T
  * @param nextDecoder decoder for next type U
@@ -403,7 +403,7 @@ export function asBothOf<T, U>(
  * Takes a literal value and produces a decoder that can only decode that value.
  *
  * example:
- * ```
+ * ```ts
  * const d1: Decoder<2> = asLiteral(2)
  * const d2: Decoder<"accepted"> = asLiteral("accepted")
  * const d3: Decoder<true> = asLiteral(true)
@@ -467,7 +467,7 @@ export function asOptional<T>(itemDecoder: Decoder<T>): Decoder<Optional<T>> {
  * Useful only when utility for decoding your desired value doesn't exist.
  *
  * example:
- * ```
+ * ```ts
  * // a decoder for decoding a string that should be one of 3 valid
  * // values: 'accepted', 'rejected', 'in-review'
  * const customDecoder = asCustom((value) => {
