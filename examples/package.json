@@ -1,0 +1,23 @@
+{
+    "name": "examples",
+    "version": "1.0.0",
+    "description": "example usages of type-conformity",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/frankchoongsaeng/type-conformity.git"
+    },
+    "author": "Nwokafor Chukwuebuka Choongsaeng",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/frankchoongsaeng/type-conformity/issues"
+    },
+    "homepage": "https://github.com/frankchoongsaeng/type-conformity#readme",
+    "devDependencies": {
+        "typescript": "^5.3.3"
+    }
+}

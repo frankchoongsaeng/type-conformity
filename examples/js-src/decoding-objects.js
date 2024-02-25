@@ -1,25 +1,13 @@
 import {
-    asArray,
-    asBoolean,
-    asNull,
-    asNumber,
+    Decoder,
     asObject,
-    asOneOf,
+    asNumber,
+    asBoolean,
     asString,
-} from "../src/lib/decoders";
-import { Decoder } from "../src/lib/types";
-
-// USAGE EXAMPLES
-type ExampleObjectType = {
-    greeting: string;
-    answerToEverything: number;
-    isTrue: boolean;
-    numbersArray: number[];
-    nestedObject: {
-        key: string;
-    };
-    nullValue: null | string;
-};
+    asArray,
+    asOneOf,
+    asNull,
+} from "type-conformity";
 
 const exampleObjectValue = {
     greeting: "Hello, World!",
@@ -32,7 +20,7 @@ const exampleObjectValue = {
     nullValue: "null",
 };
 
-const exampleCodec: Decoder<ExampleObjectType> = asObject
+const exampleCodec = asObject
     .withFieldAlias("answer_to_everything", asNumber, "answerToEverything")
     .withField("isTrue", asBoolean)
     .withField("greeting", asString)

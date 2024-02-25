@@ -209,7 +209,8 @@ const customDecoder = asCustom(value => {
 
 Parameters:
 
--   `decodeFn`: a decode function use in decoding a value to type T
+-   `decodeFn`: a decode function used in decoding a value to type T
+-   `testFn`: an optional test function used in testing a value for conformity to type T
 -   `name`: an optional name of your custom decoder
 
 ## :wrench: Constants

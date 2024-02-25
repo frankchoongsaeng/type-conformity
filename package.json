@@ -1,8 +1,8 @@
 {
-    "name": "js-codecs",
+    "name": "type-conformity",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "description": "TypeConformity is a powerful TypeScript/JavaScript library for validating types of values at runtime, enforcing data integrity and preventing erroneous or unexpected data in your systems.",
+    "main": "dist/index.js",
     "scripts": {
         "build": "tsc",
         "generate-api-doc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
@@ -13,9 +13,22 @@
     "lint-staged": {
         "**/*": "prettier --write --ignore-unknown"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "keywords": [
+        "type",
+        "check",
+        "library",
+        "javascript",
+        "typescript",
+        "data validation",
+        "type checking",
+        "runtime type checking"
+    ],
+    "author": "Nwokafor Chukwuebuka Choongsaeng",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/frankchoongsaeng/type-conformity.git"
+    },
+    "license": "MIT",
     "devDependencies": {
         "@microsoft/tsdoc": "^0.14.2",
         "@types/jest": "^29.5.12",
