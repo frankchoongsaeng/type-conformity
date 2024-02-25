@@ -7,7 +7,9 @@
         "build": "tsc",
         "test": "jest",
         "generate-api-doc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
-        "publish": "np --branch main --preview patch",
+        "publish-minor": "np --branch main minor",
+        "publish-major": "np --branch main major",
+        "publish-patch": "np --branch main patch",
         "prepare": "husky"
     },
     "lint-staged": {
