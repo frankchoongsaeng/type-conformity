@@ -5,9 +5,9 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "tsc",
-        "generate-api-doc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
-        "postpublish": "npm test && npm run build",
         "test": "jest",
+        "generate-api-doc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
+        "publish": "np --branch main --preview patch",
         "prepare": "husky"
     },
     "lint-staged": {
@@ -29,12 +29,18 @@
         "url": "git+https://github.com/frankchoongsaeng/type-conformity.git"
     },
     "license": "MIT",
+    "files": [
+        "dist/",
+        "README.md",
+        "LICENSE.md"
+    ],
     "devDependencies": {
         "@microsoft/tsdoc": "^0.14.2",
         "@types/jest": "^29.5.12",
         "husky": "^9.0.11",
         "jest": "^29.7.0",
         "lint-staged": "^15.2.2",
+        "np": "^9.2.0",
         "prettier": "3.2.5",
         "ts-jest": "^29.1.2",
         "tsdoc-markdown": "^0.3.0",
