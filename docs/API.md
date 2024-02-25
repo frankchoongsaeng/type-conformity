@@ -112,9 +112,9 @@ A function that takes two decoders and produces a decoder of the union of both v
 Useful for composing decoders that can decode many types
 example:
 
-```
-asOneOf(asString, asNumber) // produces a decoder for string | number
-asOneOf(asString, asOneOf(asNumber, asBoolean)) // produces a decoder for string | number | boolean
+```ts
+asOneOf(asString, asNumber); // produces a decoder for string | number
+asOneOf(asString, asOneOf(asNumber, asBoolean)); // produces a decoder for string | number | boolean
 ```
 
 | Function  | Type                                                                           |
@@ -134,12 +134,12 @@ Useful for composing decoders that decode a larger object.
 
 example:
 
-```
- type Foo = { foo: String }
- type Bar = { bar: boolean }
- const asFoo = asObject.withField("foo", asString)
- const asBar = asObject.withField("bar", asBoolean)
- asBothOf<Foo, Bar>(asFoo, asBar) // produces an object decoder for Foo & Bar
+```ts
+type Foo = { foo: String };
+type Bar = { bar: boolean };
+const asFoo = asObject.withField("foo", asString);
+const asBar = asObject.withField("bar", asBoolean);
+asBothOf<Foo, Bar>(asFoo, asBar); // produces an object decoder for Foo & Bar
 ```
 
 | Function   | Type                                                                                              |
@@ -157,10 +157,10 @@ Takes a literal value and produces a decoder that can only decode that value.
 
 example:
 
-```
-const d1: Decoder<2> = asLiteral(2)
-const d2: Decoder<"accepted"> = asLiteral("accepted")
-const d3: Decoder<true> = asLiteral(true)
+```ts
+const d1: Decoder<2> = asLiteral(2);
+const d2: Decoder<"accepted"> = asLiteral("accepted");
+const d3: Decoder<true> = asLiteral(true);
 ```
 
 | Function    | Type                                                            |
@@ -191,14 +191,16 @@ Useful only when utility for decoding your desired value doesn't exist.
 
 example:
 
-```
+```ts
 // a decoder for decoding a string that should be one of 3 valid
 // values: 'accepted', 'rejected', 'in-review'
-const customDecoder = asCustom((value) => {
-     if (value === 'accepted' || value === 'rejected' || value === 'in-review')
-         return success(value)
-     return failure(`failed to decode value, expected one of 'accepted', 'rejected', 'in-review' but got ${value}`)
-}, 'status decoder')
+const customDecoder = asCustom(value => {
+    if (value === "accepted" || value === "rejected" || value === "in-review")
+        return success(value);
+    return failure(
+        `failed to decode value, expected one of 'accepted', 'rejected', 'in-review' but got ${value}`,
+    );
+}, "status decoder");
 ```
 
 | Function   | Type                                                                                                          |
