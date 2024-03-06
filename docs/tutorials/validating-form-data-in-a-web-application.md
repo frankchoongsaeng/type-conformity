@@ -50,7 +50,7 @@ Now, let's implement the form validation logic using the decoders we defined. We
 import { DecodingResult } from "type-conformity";
 import { asRegistrationForm } from "./decoders";
 
-export function validateRegistrationForm(formData: any): string[] {
+export function validateRegistrationForm(formData: unknown): string[] {
     const result: DecodingResult<any> = asRegistrationForm.decode(formData);
 
     if (result.kind === "success") {

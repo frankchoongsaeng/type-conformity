@@ -1,12 +1,78 @@
 import {
-    Decoder,
+    DecodingError,
     DecodingFailure,
-    DecodingResult,
     DecodingSuccess,
     Key,
-    Merge,
-    ObjectDecoder,
+    Path,
 } from "./types";
+
+export function printPath(path: Path): string {
+    if (path.kind === "field") {
+        return `.${typeof path.field === "symbol" ? String(path.field) : path.field}`;
+    } else {
+        return `[${path.index}]`;
+    }
+}
+
+export function printHelper(error: DecodingError): Array<string> {
+    if (typeof error === "string") {
+        return [`: ${error}`];
+    } else {
+        const { path, errors } = error;
+        if (Array.isArray(errors)) {
+            return errors.flatMap(err =>
+                printHelper(err).map(
+                    messageSoFar => `${printPath(path)}${messageSoFar}`,
+                ),
+            );
+        } else {
+            return printHelper(errors).map(
+                messageSoFar => `${printPath(path)}${messageSoFar}`,
+            );
+        }
+    }
+}
+
+/**
+ * Pretty prints errors with the rational that multiple errors can occur in an array, or an object.
+ *
+ * A top level decoding error always starts with "$root" (not to be confused with a field called "root")
+ * ```ts
+ * asString.decode(1)
+ * // $root: expected string but got number
+ * ```
+ *
+ * An array can return multiple errors
+ * ```ts
+ * asArray(asString).decode(["foo", 1, "bar", null])
+ * // $root[1]: expected string but got number
+ * // $root[3]: expected string but got null
+ * ```
+ *
+ * An object can return multiple errors
+ * ```ts
+ * const decoder = asObject.withField(
+ *      "foo",
+ *      asArray(
+ *          asObject.withField("bar", asString)
+ *      )
+ * )
+ *
+ * decoder.decode({ foo: [ {bar: "buzz"}, {fizz: "foo"}, {bar: 2} ] })
+ * // $root.foo[1].bar: expected string but got undefined
+ * // $root.foo[2].bar: expected string but got number
+ * ```
+ *
+ * @param errors all the decoding errors that occurred
+ * @returns pretty printed error string
+ */
+export function prettyPrintError(errors: Array<DecodingError>): string {
+    return errors
+        .flatMap((err: DecodingError) => {
+            return printHelper(err).map(message => `$root${message}`);
+        })
+        .join("\n");
+}
 
 /**
  * Constructs a DecodingSuccess of type T that wraps a value of type T.
@@ -16,7 +82,8 @@ import {
  */
 export function success<T>(v: T): DecodingSuccess<T> {
     return {
-        kind: "success",
+        success: true,
+        failed: false,
         value: v,
     };
 }
@@ -24,110 +91,54 @@ export function success<T>(v: T): DecodingSuccess<T> {
 /**
  * Constructs a DecodingFailure object with a reason.
  *
- * @param reason reason for the decoding failure
+ * @param errors reason for the decoding failure
  * @returns a DecodingFailure object
  */
-export function failure(reason: string): DecodingFailure {
+export function failure(
+    errors: Array<DecodingError> | DecodingError,
+): DecodingFailure {
     return {
-        kind: "failure",
-        reason: reason,
-    };
-}
-
-export function objectDecoderHelper<T>(
-    arg: any,
-    objDecoder: ObjectDecoder<T>,
-): DecodingResult<T> {
-    const obj: any = {};
-    const errors: string[] = [];
-    if (typeOf(arg) === "object") {
-        objDecoder.fields.forEach(([fieldName, fieldCodec, alias]) => {
-            const fieldValue = fieldCodec.decode(arg[fieldName]);
-            if (fieldValue.kind === "failure") {
-                errors.push(
-                    `error while decoding field - ${fieldName}, ${fieldValue.reason}`,
-                );
-            } else {
-                obj[alias ?? fieldName] = fieldValue.value;
-            }
-        });
-        if (errors.length > 0) {
-            return failure(errors.join("\n"));
-        } else {
-            return success(obj);
-        }
-    } else {
-        return failure(`expected an object but got ${typeOf(arg)}`);
-    }
-}
-
-export function withFieldHelper<
-    A,
-    K extends Key,
-    V,
-    B extends Merge<A, { [P in K]: V }>,
->(
-    prevObjectCodec: ObjectDecoder<A>,
-    name: K,
-    fieldDecoder: Decoder<V>,
-    alias?: Key,
-): ObjectDecoder<B> {
-    return {
-        get name() {
-            return `{ ${this.fields.map(([name, dec]) => name + ": " + dec.name).join(", ")} }`;
-        },
-        fields: [...prevObjectCodec.fields, [name, fieldDecoder, alias]],
-        withField<K2 extends Key, V2>(
-            name2: K2,
-            fieldDecoder2: Decoder<V2>,
-        ): ObjectDecoder<Merge<B, { [P2 in K2]: V2 }>> {
-            return withFieldHelper<B, K2, V2, Merge<B, { [P2 in K2]: V2 }>>(
-                this,
-                name2,
-                fieldDecoder2,
+        success: false,
+        failed: true,
+        errors,
+        get reason(): string {
+            return prettyPrintError(
+                Array.isArray(this.errors) ? this.errors : [this.errors],
             );
         },
-        withFieldAlias<K2 extends Key, V2>(
-            name2: Key,
-            fieldDecoder2: Decoder<V2>,
-            alias2: K2,
-        ): ObjectDecoder<Merge<B, { [P2 in K2]: V2 }>> {
-            return withFieldHelper<B, K2, V2, Merge<B, { [P2 in K2]: V2 }>>(
-                this,
-                name2 as K2,
-                fieldDecoder2,
-                alias2,
-            );
-        },
-        decode(arg: any): DecodingResult<B> {
-            return objectDecoderHelper(arg, this);
-        },
-        test(arg: any): boolean {
-            if (typeOf(arg) === "object") {
-                for (let [fieldName, fieldCodec] of this.fields) {
-                    if (!fieldCodec.test(arg[fieldName])) return false;
-                }
-
-                return true;
-            } else {
-                return false;
-            }
+        concat(that) {
+            const asArray = (errs: Array<DecodingError> | DecodingError) => {
+                if (Array.isArray(errs)) return errs;
+                else return [errs];
+            };
+            const thisErrors = asArray(this.errors);
+            const thoseErrors = asArray(that.errors);
+            return thisErrors.concat(thoseErrors);
         },
     };
 }
 
-type TypeOf =
-    | "undefined"
-    | "object"
-    | "boolean"
-    | "number"
-    | "bigint"
-    | "string"
-    | "symbol"
-    | "function"
-    | "object"
-    | "array"
-    | "null";
+type TypeOf<T> = T extends string
+    ? "string"
+    : T extends boolean
+      ? "boolean"
+      : T extends undefined
+        ? "undefined"
+        : T extends bigint
+          ? "bigint"
+          : T extends number
+            ? "number"
+            : T extends symbol
+              ? "symbol"
+              : T extends []
+                ? "array"
+                : T extends null
+                  ? "null"
+                  : T extends object
+                    ? "object"
+                    : T extends Function
+                      ? "function"
+                      : "never";
 
 /**
  * An extension of the native javascript `typeof` test that differentiates
@@ -136,7 +147,8 @@ type TypeOf =
  * @param arg value
  * @returns string representation of the type of value
  */
-export function typeOf(arg: any): TypeOf {
+export function typeOf(arg: any): TypeOf<typeof arg> {
+    if (typeof arg == "string") return "string";
     if (arg === null) {
         return "null";
     } else if (Array.isArray(arg)) {
@@ -144,4 +156,12 @@ export function typeOf(arg: any): TypeOf {
     } else {
         return typeof arg;
     }
+}
+
+export function isObject(arg: unknown): arg is { [k: Key]: any } {
+    return typeOf(arg) === "object";
+}
+
+export function isArray(arg: unknown): arg is any[] {
+    return typeOf(arg) === "array";
 }
