@@ -1,35 +1,24 @@
 import {
     DecodingError,
+    DecodingErrors,
     DecodingFailure,
     DecodingSuccess,
     Key,
+    Message,
     Path,
 } from "./types";
 
+/**
+ * Transform a Path to it's string representation.
+ *
+ * @param path Path
+ * @returns string representation of the path
+ */
 export function printPath(path: Path): string {
     if (path.kind === "field") {
-        return `.${typeof path.field === "symbol" ? String(path.field) : path.field}`;
+        return `.${String(path.field)}`;
     } else {
         return `[${path.index}]`;
-    }
-}
-
-export function printHelper(error: DecodingError): Array<string> {
-    if (typeof error === "string") {
-        return [`: ${error}`];
-    } else {
-        const { path, errors } = error;
-        if (Array.isArray(errors)) {
-            return errors.flatMap(err =>
-                printHelper(err).map(
-                    messageSoFar => `${printPath(path)}${messageSoFar}`,
-                ),
-            );
-        } else {
-            return printHelper(errors).map(
-                messageSoFar => `${printPath(path)}${messageSoFar}`,
-            );
-        }
     }
 }
 
@@ -66,10 +55,11 @@ export function printHelper(error: DecodingError): Array<string> {
  * @param errors all the decoding errors that occurred
  * @returns pretty printed error string
  */
-export function prettyPrintError(errors: Array<DecodingError>): string {
-    return errors
-        .flatMap((err: DecodingError) => {
-            return printHelper(err).map(message => `$root${message}`);
+export function prettyPrintFailureError(failure: DecodingFailure): string {
+    return failure
+        .map((message, paths) => {
+            const pathString = `$root${paths.map(printPath).join("")}`;
+            return `${pathString}: ${message}`;
         })
         .join("\n");
 }
@@ -102,9 +92,7 @@ export function failure(
         failed: true,
         errors,
         get reason(): string {
-            return prettyPrintError(
-                Array.isArray(this.errors) ? this.errors : [this.errors],
-            );
+            return prettyPrintFailureError(this);
         },
         concat(that) {
             const asArray = (errs: Array<DecodingError> | DecodingError) => {
@@ -115,30 +103,49 @@ export function failure(
             const thoseErrors = asArray(that.errors);
             return thisErrors.concat(thoseErrors);
         },
+        map(transformer) {
+            return map(this.errors, transformer);
+        },
+        foreach(fun) {
+            map<void>(this.errors, fun);
+        },
     };
 }
 
-type TypeOf<T> = T extends string
-    ? "string"
-    : T extends boolean
-      ? "boolean"
-      : T extends undefined
-        ? "undefined"
-        : T extends bigint
-          ? "bigint"
-          : T extends number
-            ? "number"
-            : T extends symbol
-              ? "symbol"
-              : T extends []
-                ? "array"
-                : T extends null
-                  ? "null"
-                  : T extends object
-                    ? "object"
-                    : T extends Function
-                      ? "function"
-                      : "never";
+function map<T>(
+    errors: DecodingErrors,
+    transformer: (t: Message, path: Array<Path>) => T,
+): Array<T> {
+    function mapErr(err: DecodingError, pathSoFar: Array<Path>): Array<T> {
+        if (typeof err === "string") {
+            return [transformer(err, pathSoFar)];
+        } else {
+            return mapErrs(err.errors, [...pathSoFar, err.path]);
+        }
+    }
+
+    function mapErrs(errs: DecodingErrors, pathSoFar: Array<Path>): Array<T> {
+        if (isArray(errs)) {
+            return errs.flatMap(err => mapErr(err, pathSoFar));
+        } else {
+            return mapErr(errs, pathSoFar);
+        }
+    }
+
+    return mapErrs(errors, []);
+}
+
+type TypeOf =
+    | "string"
+    | "boolean"
+    | "undefined"
+    | "bigint"
+    | "number"
+    | "symbol"
+    | "array"
+    | "null"
+    | "object"
+    | "function";
 
 /**
  * An extension of the native javascript `typeof` test that differentiates
@@ -147,7 +154,7 @@ type TypeOf<T> = T extends string
  * @param arg value
  * @returns string representation of the type of value
  */
-export function typeOf(arg: any): TypeOf<typeof arg> {
+export function typeOf(arg: any): TypeOf {
     if (typeof arg == "string") return "string";
     if (arg === null) {
         return "null";
@@ -158,10 +165,24 @@ export function typeOf(arg: any): TypeOf<typeof arg> {
     }
 }
 
+/**
+ * Checks if an argument is an object.
+ * Applies type narrowing in typescript.
+ *
+ * @param arg argument to check
+ * @returns true if argument is an object
+ */
 export function isObject(arg: unknown): arg is { [k: Key]: any } {
     return typeOf(arg) === "object";
 }
 
+/**
+ * Checks if an argument is an array.
+ * Applies type narrowing in typescript.
+ *
+ * @param arg argument to check
+ * @returns true if argument is an array
+ */
 export function isArray(arg: unknown): arg is any[] {
     return typeOf(arg) === "array";
 }

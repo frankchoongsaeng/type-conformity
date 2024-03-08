@@ -1,2 +1,1 @@
-npm run generate-api-doc
 npx lint-staged

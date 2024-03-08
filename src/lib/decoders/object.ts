@@ -5,13 +5,10 @@ import {
     Key,
     Merge,
     Pair,
-    WithoutKey,
+    ExcludeField,
 } from "../types";
 import { failure, isObject, success, typeOf } from "../utils";
-import { asArray } from "./array";
-import { asBoolean, asString, asNumber, asNull } from "./basic";
 import { Decoder } from "./decoder";
-import { asOneOf } from "./extras";
 
 /**
  * A specific decoder for objects having the shape of T.
@@ -113,8 +110,8 @@ export class ObjectDecoder<T> extends Decoder<T> {
      */
     withoutField<K extends keyof T>(
         fieldName: K,
-    ): ObjectDecoder<WithoutKey<T, K>> {
-        const newObjectDecoder = new ObjectDecoder<WithoutKey<T, K>>();
+    ): ObjectDecoder<ExcludeField<T, K>> {
+        const newObjectDecoder = new ObjectDecoder<ExcludeField<T, K>>();
         newObjectDecoder.fields = { ...this.fields };
         // find the fieldName in aliases
         const entries = Object.entries(this.fields);
