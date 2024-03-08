@@ -49,9 +49,9 @@ function that returns a `DecodingResult<T>`, allowing you to deal with the error
 import { asString, DecodingResult } from "type-conformity";
 
 // use asString to decode some data
-const hello = asString; //.parse(1);
-//         calling this ^^^^^^^^^ with a number throws a runtime error
-//         with message '$root: expected string but got number'
+const hello = asString.parse(1);
+//       calling this ^^^^^^^^^ with a number throws a runtime error
+//       with message '$root: expected string but got number'
 
 /* +++++++++++++++ USING DECODE ++++++++++++++ */
 
