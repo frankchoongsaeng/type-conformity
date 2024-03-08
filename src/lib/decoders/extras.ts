@@ -2,7 +2,6 @@ import { DecodingResult } from "../types";
 import { failure, success } from "../utils";
 import { asNumber } from "./basic";
 import { Decoder, DecoderConfig, InternDecoder } from "./decoder";
-import { ObjectDecoder } from "./object";
 
 class CustomDecoder<T> extends InternDecoder<T> {
     constructor(config: DecoderConfig<T>) {
@@ -39,52 +38,6 @@ export function asCustom<T>(
         test: testFn,
         name: name ?? "custom decoder",
     });
-}
-
-/**
- * A function that takes two decoders and produces a decoder of the union of both values.
- *
- * Useful for composing decoders that can decode many types
- * example:
- * ```ts
- * asOneOf(asString, asNumber) // produces a decoder for string | number
- * asOneOf(asString, asOneOf(asNumber, asBoolean)) // produces a decoder for string | number | boolean
- * ```
- *
- * @param firstDecoder decoder for first type T
- * @param nextDecoder decoder for next type U
- * @returns A decoder for decoding T | U
- */
-export function asOneOf<T, U>(
-    firstDecoder: Decoder<T>,
-    nextDecoder: Decoder<U>,
-): Decoder<T | U> {
-    return firstDecoder.or(nextDecoder);
-}
-
-/**
- * A function that takes two object decoders and produces a decoder of the intersection of both values.
- *
- * Useful for composing decoders that decode a larger object.
- *
- * example:
- * ```ts
- * type Foo = { foo: String }
- * type Bar = { bar: boolean }
- * const asFoo = asObject.withField("foo", asString)
- * const asBar = asObject.withField("bar", asBoolean)
- * asBothOf<Foo, Bar>(asFoo, asBar) // produces an object decoder for Foo & Bar
- * ```
- *
- * @param firstDecoder decoder for first type T
- * @param nextDecoder decoder for next type U
- * @returns A decoder for decoding T | U
- */
-export function asBothOf<T, U>(
-    firstDecoder: ObjectDecoder<T>,
-    nextDecoder: ObjectDecoder<U>,
-): ObjectDecoder<T & U> {
-    return firstDecoder.and(nextDecoder);
 }
 
 /**

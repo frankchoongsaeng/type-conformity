@@ -23,22 +23,35 @@ Next, we'll define decoders for the various fields in our registration form usin
 
 ```ts
 // decoders.ts
-import { asObject, asString, asCustom } from "type-conformity";
+import {
+    asObject,
+    asString,
+    asCustom,
+    failure,
+    success,
+    Unwrap,
+} from "type-conformity";
 
-const asDate = asCustom(arg => {
-    const result = asString.decode(arg);
-    if (result.kind === "success") {
-        const date = new Date(result.value);
-        if (!isNaN(date)) return date;
-        return failure("invalid date string - " + result.value);
-    }
-    return result;
+const asDate = asCustom({
+    name: "date",
+    decode(arg) {
+        const result = asString.decode(arg);
+        if (result.success) {
+            const date = new Date(result.value);
+            if (!isNaN(date)) return success(date);
+            return failure("invalid date string - " + result.value);
+        }
+        return result;
+    },
 });
 
 export const asRegistrationForm = asObject
     .withField("name", asString)
     .withField("email", asEmail)
     .withField("dateOfBirth", asDate);
+
+// we can also reuse the type inferred from the decoder
+export type RegistrationForm = Unwrap<typeof asRegistrationForm>;
 ```
 
 ### Step 3: Implement Form Validation
@@ -48,15 +61,24 @@ Now, let's implement the form validation logic using the decoders we defined. We
 ```ts
 // validator.ts
 import { DecodingResult } from "type-conformity";
-import { asRegistrationForm } from "./decoders";
+import { asRegistrationForm, RegistrationForm } from "./decoders";
 
 export function validateRegistrationForm(formData: unknown): string[] {
-    const result: DecodingResult<any> = asRegistrationForm.decode(formData);
+    const result: DecodingResult<RegistrationForm> =
+        asRegistrationForm.decode(formData);
 
-    if (result.kind === "success") {
-        return ["Registration successful!"];
+    if (result.success) {
+        return [];
     } else {
-        return result.reason.split("\n");
+        // we can map over the errors to transform them as we want
+        return result.map((message, paths) => {
+            // we can provide meaningful errors here
+            const pathstring = paths.map(path => {
+                if (path.kind === "field") return "Form field " + path.field;
+                else return ""; // because our form doesn't have arrays
+            });
+            return `${message} @ ${pathstring}`;
+        });
     }
 }
 ```

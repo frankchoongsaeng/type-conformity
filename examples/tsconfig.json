@@ -3,11 +3,11 @@
         "target": "es2016",
         "module": "commonjs",
         "declaration": false,
-        "outDir": "./ts-out",
+        "outDir": "./out",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "skipLibCheck": true
     },
-    "include": ["ts-src/"]
+    "include": ["src"]
 }

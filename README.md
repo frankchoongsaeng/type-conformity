@@ -1,20 +1,8 @@
 # Introducing TypeConformity
 
-TypeConformity is a TypeScript/JavaScript library designed to empower developers in building robust data validation mechanisms through a declarative approach. By providing a set of tools for defining decoders, the library aids developers in enforcing data integrity and preventing the ingress of erroneous or unexpected data into their systems.
+TypeConformity is a simple TypeScript/JavaScript library designed to help us developers in building data validation pipelines using an elegant declarative API. It aids in enforcing data integrity and preventing unexpected data from entering into our systems.
 
-It can be used to validate that data conforms to a predefined type rule; You can think of it as a runtime type checker for JavaScript.
-
-## Why use TypeConformity
-
-**Enhanced Data Quality**: TypeConformity facilitates the creation of decoders that enforce strict validation rules, ensuring that only valid data enters the system. This leads to improved data quality and reliability.
-
-**Reduced Error Rates**: By defining decoders upfront, developers can catch data errors early in the process, reducing the likelihood of runtime errors and improving the overall stability of the application. Think of this as a runtime type checker.
-
-**Declarative Approach**: TypeConformity promotes a declarative programming paradigm, allowing developers to succinctly express their validation logic using clear and intuitive syntax.
-
-**Type Safety**: Leveraging TypeScript's type system, TypeConformity provides strong compile-time guarantees, enabling developers to catch type mismatches and other errors during development rather than at runtime.
-
-**Scalability**: With TypeConformity, developers can easily compose complex decoders from simpler ones, enabling scalability and reusability across different parts of the codebase.
+Simply put, it can be used to _assert_ that data is what we _expect_. You can think of it as a runtime type checker for JavaScript.
 
 ## Getting Started
 
@@ -36,80 +24,176 @@ yarn add type-conformity
 
 ### Basic Usage
 
-Define a simple decoder using TypeConformity's provided functions. For example, to define a decoder for a string:
+2 simple steps is all you need:
+
+-   Create your decoder _(or use from type conformity's prebuilt decoders)_
+-   Use your decoder to decode some data
+
+Example:
 
 ```typescript
+// import asString decoder, useful for decoding strings.
 import { asString } from "type-conformity";
 
-const stringDecoder = asString;
+// use asString to decode some data
+const hello = asString.parse("Hello, world!");
+console.log(hello); // prints Hello, world!
+```
 
-const result = stringDecoder.decode("Hello, world!");
+The `parse` method is used here to validate the input 'Hello, world!' and returns the validated string without any problems.
 
-if (result.kind === "success") {
-    console.log("Decoding successful:", result.value);
+Note that `parse` throws a `DecodingException` error when it fails to decode input. To manage this, you can use the `decode`
+function that returns a `DecodingResult<T>`, allowing you to deal with the errors as you see fit.
+
+```ts
+import { asString, DecodingResult } from "type-conformity";
+
+// use asString to decode some data
+const hello = asString; //.parse(1);
+//         calling this ^^^^^^^^^ with a number throws a runtime error
+//         with message '$root: expected string but got number'
+
+/* +++++++++++++++ USING DECODE ++++++++++++++ */
+
+// we can use decode to avoid throwing runtime errors
+const helloResult: DecodingResult<T> = asString.decode(1);
+
+if (helloResult.failed) {
+    console.log(hello.reason); // prints, '$root: expected string but got number'
 } else {
-    console.error("Decoding failed:", result.reason);
+    // decoding was a success, we can safely access the value
+    console.log(helloResult.value);
 }
 ```
 
-In this example, `asString` creates a decoder for strings. The decode method is then used to validate the input 'Hello, world!', producing either a success result containing the validated value or a failure result with an error message.
+So far so good, but these were pretty basic usage examples just to show the different parts in using type conformity.
+
+Let's look at more advanced and realistic usages of type conformity.
 
 ### Advanced Usage
 
-Create more complex decoders by combining simpler ones using functions like `asOneOf`, `asBothOf`, `asArray`, etc. For instance, to define a decoder for an object with specific fields:
+Type conformity ships with some very useful decoders out of the box.
 
-```typescript
-import { asObject, asString, asNumber } from "type-conformity";
+```ts
+// aliasing all the imports as 'tc' so we don't have a mess of imports.
+import * as tc from "type-conformity";
 
-const asPerson = asObject
-    .withField("name", asString)
-    .withField("age", asNumber);
-
-const result = asPerson.decode({ name: "Alice", age: 30 });
-
-if (result.kind === "success") {
-    console.log("Decoding successful:", result.value);
-} else {
-    console.error("Decoding failed:", result.reason);
-}
+// asString for decoding strings
+tc.asString.parse("hello world");
+// asNumber for decoding numbers
+tc.asNumber.parse(2);
+// asBoolean for decoding booleans
+tc.asBoolean.parse(true);
+// asConst for decoding constant values
+tc.asConst(2).parse(2);
 ```
 
-Here, `asObject` creates a decoder for objects, and `withField` specifies the fields and their respective decoders. The resulting `asPerson` decoder can then be used to validate objects with a name-string-field and an age-number-field.
+We can create even more complex decoders by combining simpler ones. Using functions like `or`, `asArray`, `asTuple`, etc.
+
+```ts
+// aliasing all the imports as 'tc' so we don't have a mess of imports.
+import * as tc from "type-conformity";
+
+const asArrayOfStrings = tc.asArray(tc.asString);
+asArrayOfStrings.parse(["foo", "bar"]);
+
+const asStringOrNumber = tc.asString.or(tc.asNumber);
+asStringOrNumber.parse("hello");
+asStringOrNumber.parse(2);
+
+const asKeyValue = tc.asTuple(
+    tc.asString,
+    tc.asAny /* yes! we have this too */,
+);
+asKeyValue.parse(["field", 2]);
+asKeyValue.parse(["field", true]);
+```
+
+We can also create object decoders in one of two ways:
+
+```typescript
+// aliasing all the imports as 'tc' so we don't have a mess of imports.
+import * as tc from "type-conformity";
+
+// we can create object decoders using asObject.
+const asPerson = tc.asObject
+    .withField("name", tc.asString)
+    .withField("age", tc.asNumber);
+
+asPerson.parse({ name: "Alice", age: 30 });
+
+// or we can create the same Person decoder using an object literal
+const asPerson2 = tc.fromObject({
+    name: tc.asString,
+    age: tc.asNumber,
+});
+// works exactly the same as `asPerson`
+asPerson2.parse({ name: "Alice", age: 30 });
+```
 
 ### Custom Decoders
 
-You also have the option of defining custom decoders for specific validation requirements using `asCustom`. For example, to create a decoder for positive integers:
+> Type conformity provides a ton of ways of combining decoders, extending decoders, and also manipulating decoded values as part of the decode process.
+> You should check out these options first before creating yours, or not; the choice is yours.
+
+Of course! Type conformity also supports creating your own decoders.
+
+This is particularly useful when it isn't possible to combine other decoders to get what you want _(which is quite rare)_, or you want to take charge
+of the decoding process for a particular value for reasons best known to you.
+
+You can create custom decoders by using `asCustom`
 
 ```typescript
 import { asCustom, success, failure } from "type-conformity";
 
-const asPositiveNumber = asCustom((value: number) => {
-    if (value >= 0) {
-        return success(value);
-    }
-    return failure("Value must be a positive integer.");
+const asPositiveNumber: Decoder<number> = asCustom({
+    decode(value) {
+        if (typeof value === "number" && value >= 0) {
+            return success(value);
+        }
+        return failure("Value must be a positive number.");
+    },
 });
-
-const result = asPositiveNumber.decode(42);
-
-if (result.kind === "success") {
-    console.log("Decoding successful:", result.value);
-} else {
-    console.error("Decoding failed:", result.reason);
-}
 ```
 
-In this case, `asCustom` allows defining a custom decoding function that checks if the input value is a positive integer.
+`asCustom` allows you to create a decoder with custom decoding logic. You can optionally supply a `test` function, and a name for your decoder.
 
-TypeConformity empowers you to create robust data validation pipelines, that can ensure data quality and system reliability.
-Its designed to have an intuitive syntax that makes defining data validation rules easy.
-It's a valuable tool for any TypeScript or JavaScript project aiming to maintain clean and reliable data.
+The other way of create custom decoders is by extending the `Decoder` class and providing implementations for your decoder instances:
+
+```typescript
+import { Decoder, success, failure } from "type-conformity";
+
+class PositiveNumberDecoder extends Decoder<number> {
+    name = "positive number";
+
+    decode(arg: unknown): DecodingResult<number> {
+        if (typeof arg === "number" && arg >= 0) {
+            return success(arg);
+        }
+        return failure("Value must be a positive number.");
+    }
+
+    test(arg: unknown): boolean {
+        return typeof arg === "number" && arg >= 0;
+    }
+}
+
+const asPositiveNumber: PositiveNumberDecoder = new PositiveNumberDecoder();
+```
+
+In this case implementations must be provided for `name`, `decode`, and `test`.
+This approach allows you to define additional methods and fields that can be called on your custom decoder.
+
+### API
+
+There's many more ways of working with decoders that just can fit into this document, but you can find TypeConformity's full API documentatio
+[here.](/docs/API.md)
 
 ### Caveats
 
 #### TypeScript Objects are compatible if one is a subset of the other
 
-The `asObject` decoder figures out the typescript type of the decoder based on what fields and decoders have been composed so far.
+The `asObject` decoder infers the typescript type of the decoder based on what fields and decoders have been composed so far.
 
 When you call `withField`, it knows to update the typescript type of the decoder with the new field and it's corresponding type.
 
@@ -142,18 +226,15 @@ const asUser: Decoder<User> = asObject
     // is a superset of User.
 ```
 
-Using these kind of superset decoders can lead to false negatives, where it tries to decode `additionalField` as a string and fails.
+**Using these kind of superset decoders can lead to false negatives, where it tries to decode `additionalField` as a string and fails!**
 
-### API
+### Examples and Tutorials
 
-Find TypeConformity API's full documentation [here](/docs/API.md)
-
-### Tutorials
-
-There are a few tutorials showing how TypeConformity can be used in different use cases.
+There are a few examples and tutorials showing how TypeConformity can be used in different use cases.
 
 -   [Data Validation for RESTful Service Endpoint using TypeConformity](/docs/tutorials/validating-data-from-restful-service.md)
 -   [Using TypeConformity for Form Validation in a Web Application](/docs/tutorials/validating-form-data-in-a-web-application.md)
+-   [Examples](/examples/src/)
 
 ### Contributing
 

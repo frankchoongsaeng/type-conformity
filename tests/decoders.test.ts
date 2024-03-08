@@ -1,13 +1,11 @@
 import {
     asArray,
     asBoolean,
-    asBothOf,
     asCustom,
     asConst,
     asNull,
     asNumber,
     asObject,
-    asOneOf,
     asString,
     asTuple,
     asUndefined,
@@ -642,64 +640,63 @@ describe("decoders/extras", () => {
         expect(asStatus.test("random")).toBe(false);
     });
 
-    test("asOneOf.decode", () => {
-        expect(
-            asOneOf(asString, asBoolean).decode("string value"),
-        ).toHaveProperty("value", "string value");
-        expect(asOneOf(asString, asBoolean).decode(true)).toHaveProperty(
+    test("or.decode", () => {
+        expect(asString.or(asBoolean).decode("string value")).toHaveProperty(
+            "value",
+            "string value",
+        );
+        expect(asString.or(asBoolean).decode(true)).toHaveProperty(
             "value",
             true,
         );
-        expect(asOneOf(asString, asBoolean).decode(1)).toHaveProperty(
+        expect(asString.or(asBoolean).decode(1)).toHaveProperty(
             "reason",
             "$root: expected string but got number\n" +
                 "$root: expected boolean but got number",
         );
     });
 
-    test("asOneOf.test", () => {
-        expect(asOneOf(asString, asBoolean).test("string value")).toBe(true);
-        expect(asOneOf(asString, asBoolean).test(true)).toBe(true);
-        expect(asOneOf(asString, asBoolean).test(1)).toBe(false);
+    test("or.test", () => {
+        expect(asString.or(asBoolean).test("string value")).toBe(true);
+        expect(asString.or(asBoolean).test(true)).toBe(true);
+        expect(asString.or(asBoolean).test(1)).toBe(false);
     });
 
-    test("asBothOf.decode", () => {
+    test("and.decode", () => {
         const asFoo = asObject.withField("foo", asString);
         const asBar = asObject.withField("bar", asNumber);
         expect(
-            asBothOf(asFoo, asBar).decode({ foo: "some value", bar: 1 }),
+            asFoo.and(asBar).decode({ foo: "some value", bar: 1 }),
         ).toHaveProperty("value", { foo: "some value", bar: 1 });
         expect(
-            asBothOf(asFoo, asBar).decode({ foo: "some value", baz: 1 }),
+            asFoo.and(asBar).decode({ foo: "some value", baz: 1 }),
         ).toHaveProperty(
             "reason",
             "$root.bar: expected number but got undefined",
         );
         expect(
-            asBothOf(asFoo, asBar).decode({ foobar: "some value", bar: 1 }),
+            asFoo.and(asBar).decode({ foobar: "some value", bar: 1 }),
         ).toHaveProperty(
             "reason",
             "$root.foo: expected string but got undefined",
         );
-        expect(asBothOf(asFoo, asBar).decode(1)).toHaveProperty(
+        expect(asFoo.and(asBar).decode(1)).toHaveProperty(
             "reason",
             "$root: expected object but got number",
         );
     });
 
-    test("asBothOf.test", () => {
+    test("and.test", () => {
         const asFoo = asObject.withField("foo", asString);
         const asBar = asObject.withField("bar", asNumber);
-        expect(asBothOf(asFoo, asBar).test({ foo: "some value", bar: 1 })).toBe(
-            true,
-        );
-        expect(asBothOf(asFoo, asBar).test({ foo: "some value", baz: 1 })).toBe(
+        expect(asFoo.and(asBar).test({ foo: "some value", bar: 1 })).toBe(true);
+        expect(asFoo.and(asBar).test({ foo: "some value", baz: 1 })).toBe(
             false,
         );
-        expect(
-            asBothOf(asFoo, asBar).test({ foobar: "some value", bar: 1 }),
-        ).toBe(false);
-        expect(asBothOf(asFoo, asBar).test(1)).toBe(false);
+        expect(asFoo.and(asBar).test({ foobar: "some value", bar: 1 })).toBe(
+            false,
+        );
+        expect(asFoo.and(asBar).test(1)).toBe(false);
     });
 
     test("asInt.decode", () => {

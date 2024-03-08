@@ -1,6 +1,7 @@
 ## :toolbox: Functions
 
 -   [printPath](#gear-printpath)
+-   [printPaths](#gear-printpaths)
 -   [prettyPrintFailureError](#gear-prettyprintfailureerror)
 -   [success](#gear-success)
 -   [failure](#gear-failure)
@@ -19,6 +20,26 @@ Transform a Path to it's string representation.
 Parameters:
 
 -   `path`: Path
+
+### :gear: printPaths
+
+Transform an array of Path to it's string representation.
+
+```ts
+printPaths([
+    { kind: "field", field: "field1" },
+    { kind: "index", index: 1 },
+]);
+// => $root.field[1]
+```
+
+| Function     | Type                        |
+| ------------ | --------------------------- |
+| `printPaths` | `(paths: Path[]) => string` |
+
+Parameters:
+
+-   `path`: an array of Path
 
 ### :gear: prettyPrintFailureError
 

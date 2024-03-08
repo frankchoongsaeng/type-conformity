@@ -21,7 +21,7 @@ npm install type-conformity node-fetch
 
 Just to keep things tidy and get all the compiler help we can, we'll create a _models.ts_ file where we define the types of data we're working with.
 
-_This is generally a good practice too if this pattern seems like news to you._
+_This is generally a good practice too if this pattern is new to you._
 
 ```ts
 // models.ts
@@ -95,16 +95,16 @@ import { DecodingResult } from "type-conformity";
 // importing our decoder
 import { asPost } from "./decoders";
 
-export async function fetchPost(id: number): Promise<Post> {
+export async function fetchPost(id: number): Promise<Post | null> {
     try {
         const url = `https://jsonplaceholder.typicode.com/posts/${id}`;
         const response = await fetch(url);
         const data = await response.json();
 
         // applying the decoder
-        const result: DecodingResult<any> = userDataDecoder.decode(data);
+        const result: DecodingResult<Post> = asPost.decode(data);
 
-        if (result.kind === "success") {
+        if (result.success) {
             // validation was successful, we can safely return validation result
             return result.value;
         } else {
@@ -120,8 +120,8 @@ export async function fetchPost(id: number): Promise<Post> {
 }
 ```
 
-With this approach, we can now collect the failure reason and maybe log that using a cogger of our choice.
-This makes it easy to identify when bad data is coming into your system.
+With this approach, we can now collect the failure reason and maybe log that using a logger of our choice.
+This makes it easy to identify when bad data is coming into your system, and how that data is different from our expectation.
 
 ### Step 4: Integrate with Application Logic
 
@@ -132,10 +132,10 @@ Finally, integrate the data validation logic with your application logic. For de
 import { fetchPost } from "./fetchData";
 
 async function main() {
-    const userOrNull = await fetchDataFromEndpoint(1);
+    const userOrNull = await fetchPost(1);
     console.log("user or null", userOrNull);
 
-    const definitelyNull = await fetchDataFromEndpoint(-1); // id doesn't exist on jsonplaceholder
+    const definitelyNull = await fetchPost(-1); // id doesn't exist on jsonplaceholder
     console.log("should be null", definitelyNull);
 }
 

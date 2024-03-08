@@ -23,6 +23,21 @@ export function printPath(path: Path): string {
 }
 
 /**
+ * Transform an array of Path to it's string representation.
+ *
+ * ```ts
+ * printPaths([{kind: "field", field: 'field1'}, {kind: "index", index: 1}])
+ * // => $root.field[1]
+ * ```
+ *
+ * @param path an array of Path
+ * @returns string representation of the path
+ */
+export function printPaths(paths: Array<Path>): string {
+    return `$root${paths.map(printPath).join("")}`;
+}
+
+/**
  * Pretty prints errors with the rational that multiple errors can occur in an array, or an object.
  *
  * A top level decoding error always starts with "$root" (not to be confused with a field called "root")
@@ -58,7 +73,7 @@ export function printPath(path: Path): string {
 export function prettyPrintFailureError(failure: DecodingFailure): string {
     return failure
         .map((message, paths) => {
-            const pathString = `$root${paths.map(printPath).join("")}`;
+            const pathString = printPaths(paths);
             return `${pathString}: ${message}`;
         })
         .join("\n");
