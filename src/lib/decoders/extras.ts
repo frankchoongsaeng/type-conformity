@@ -97,3 +97,22 @@ export const asInt: Decoder<number> = asNumber.try(number => {
         return failure(`expected integer but got ${number}`);
     }
 });
+
+/**
+ * A decoder that can decode anything.
+ * It sets the type as `any`.
+ */
+export const asAny: Decoder<any> = new CustomDecoder({
+    name: "any",
+    decode: arg => success(arg),
+    test: () => true,
+});
+
+/**
+ * Similar to `asAny`, but sets the type to `unknown`.
+ */
+export const asUnknown: Decoder<unknown> = new CustomDecoder({
+    name: "unknown",
+    decode: arg => success(arg),
+    test: () => true,
+});
