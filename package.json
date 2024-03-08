@@ -1,6 +1,6 @@
 {
     "name": "type-conformity",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "TypeConformity is a powerful TypeScript/JavaScript library for validating types of values at runtime, enforcing data integrity and preventing erroneous or unexpected data in your systems.",
     "main": "dist/index.js",
     "scripts": {
