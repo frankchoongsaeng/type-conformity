@@ -1,7 +1,6 @@
 import { DecodingResult } from "../types";
-import { typeOf, failure, success, isArray } from "../utils";
+import { failure, success, isArray } from "../utils";
 import { ArrayDecoder } from "./array";
-import { asBoolean, asNull, asString } from "./basic";
 import { Decoder } from "./decoder";
 
 type Tuple = [...any[]];
@@ -47,21 +46,6 @@ export class TupleDecoder<T extends Tuple> extends ArrayDecoder<T> {
 }
 
 /**
- * Takes two decoders for T1 and T2, and produces a decoder that can decode a
- * Tuple of [T1, T2] elements, using the provided decoders.
- *
- * @param t1Dec A decoder for the first tuple item
- * @param t2Dec A decoder for the second tuple item
- * @returns A decoder for a Tuple of T1 and T2
- */
-export function asTuple2<T1, T2>(
-    t1Dec: Decoder<T1>,
-    t2Dec: Decoder<T2>,
-): TupleDecoder<[T1, T2]> {
-    return new TupleDecoder<[T1, T2]>([t1Dec, t2Dec]);
-}
-
-/**
  * Takes one or more decoders and produces a decoder for a Tuple of
  * elements decoder provided.
  *
@@ -69,11 +53,9 @@ export function asTuple2<T1, T2>(
  * @param decs A variable number of decoders for the other tuple items
  * @returns A decoder for a Tuple of [T1, ...TN]
  */
-export function asTupleN<T1, TN extends Tuple>(
+export function asTuple<T1, TN extends Tuple>(
     firstItemDecoder: Decoder<T1>,
     ...decs: TupleItemDecoders<TN>
 ): TupleDecoder<[T1, ...TN]> {
     return new TupleDecoder<[T1, ...TN]>([firstItemDecoder, ...decs]);
 }
-
-const t = asTupleN(asString, asBoolean, asNull);

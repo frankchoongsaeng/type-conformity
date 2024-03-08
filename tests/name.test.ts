@@ -8,8 +8,7 @@ import {
     asNumber,
     asObject,
     asString,
-    asTuple2,
-    asTupleN,
+    asTuple,
     asUndefined,
 } from "../src";
 
@@ -58,12 +57,8 @@ describe("Decoders name test", () => {
         expect(asArray(asString).name).toBe("Array<string>");
     });
 
-    test("asTuple2.name", () => {
-        expect(asTuple2(asString, asNumber).name).toBe("Tuple<string, number>");
-    });
-
-    test("asTupleN.name", () => {
-        expect(asTupleN(asString, asNumber, asBoolean).name).toBe(
+    test("asTuple.name", () => {
+        expect(asTuple(asString, asNumber, asBoolean).name).toBe(
             "Tuple<string, number, boolean>",
         );
     });

@@ -31,7 +31,7 @@ export abstract class Decoder<T> implements DecoderConfig<T> {
      * @param arg value to decode
      * @returns decoded value
      */
-    decodeOrDie(arg: unknown): T {
+    parse(arg: unknown): T {
         const result = this.decode(arg);
         if (result.failed) throw new DecodingException(result.reason);
         return result.value;

@@ -9,15 +9,13 @@ import {
     asObject,
     asOneOf,
     asString,
-    asTuple2,
-    asTupleN,
+    asTuple,
     asUndefined,
     asBigInt,
     asOptional,
     asOptionalValue,
     DecodingException,
     asInt,
-    InternDecoder,
     fromObject,
 } from "../src";
 import { success, failure } from "../src/lib/utils";
@@ -25,8 +23,8 @@ import { success, failure } from "../src/lib/utils";
 describe("decoders", () => {
     // decoder ops test
     test("decoder.decodeOrDie", () => {
-        expect(() => asString.decodeOrDie("")).not.toThrow(DecodingException);
-        expect(() => asString.decodeOrDie(1)).toThrow(DecodingException);
+        expect(() => asString.parse("")).not.toThrow(DecodingException);
+        expect(() => asString.parse(1)).toThrow(DecodingException);
     });
 
     test("decoder.map", () => {
@@ -418,52 +416,23 @@ describe("decoders", () => {
         expect(asArray(asString).test(null)).toBe(false);
     });
 
-    test("asTuple2.decode", () => {
+    test("asTuple.decode", () => {
         expect(
-            asTuple2(asString, asBoolean).decode(["string value", true]),
-        ).toHaveProperty("value", ["string value", true]);
-        expect(
-            asTuple2(asString, asBoolean).decode(["string1", true, 1]),
-        ).toHaveProperty("value", ["string1", true]);
-        expect(
-            asTuple2(asString, asBoolean).decode(["string1", "string2"]),
-        ).toHaveProperty("reason", "$root[1]: expected boolean but got string");
-        expect(asTuple2(asString, asBoolean).decode(null)).toHaveProperty(
-            "reason",
-            `$root: expected Tuple<string, boolean> but got null`,
-        );
-    });
-
-    test("asTuple2.test", () => {
-        expect(asTuple2(asString, asBoolean).test(["string value", true])).toBe(
-            true,
-        );
-        expect(asTuple2(asString, asBoolean).test(["string1", "string2"])).toBe(
-            false,
-        );
-        expect(asTuple2(asString, asBoolean).test(["string1", true, 1])).toBe(
-            false,
-        );
-        expect(asTuple2(asString, asBoolean).test(null)).toBe(false);
-    });
-
-    test("asTupleN.decode", () => {
-        expect(
-            asTupleN(asString, asBoolean, asNumber).decode([
+            asTuple(asString, asBoolean, asNumber).decode([
                 "string value",
                 true,
                 1,
             ]),
         ).toHaveProperty("value", ["string value", true, 1]);
         expect(
-            asTupleN(asString, asBoolean, asNumber).decode([
+            asTuple(asString, asBoolean, asNumber).decode([
                 "string1",
                 "string2",
                 true,
             ]),
         ).toHaveProperty("reason", "$root[1]: expected boolean but got string");
         expect(
-            asTupleN(asString, asBoolean, asNumber).decode([
+            asTuple(asString, asBoolean, asNumber).decode([
                 "string1",
                 true,
                 1,
@@ -471,37 +440,37 @@ describe("decoders", () => {
             ]),
         ).toHaveProperty("value", ["string1", true, 1]);
         expect(
-            asTupleN(asString, asBoolean, asNumber).decode(null),
+            asTuple(asString, asBoolean, asNumber).decode(null),
         ).toHaveProperty(
             "reason",
             `$root: expected Tuple<string, boolean, number> but got null`,
         );
     });
 
-    test("asTupleN.test", () => {
+    test("asTuple.test", () => {
         expect(
-            asTupleN(asString, asBoolean, asNumber).test([
+            asTuple(asString, asBoolean, asNumber).test([
                 "string value",
                 true,
                 1,
             ]),
         ).toBe(true);
         expect(
-            asTupleN(asString, asBoolean, asNumber).test([
+            asTuple(asString, asBoolean, asNumber).test([
                 "string1",
                 "string2",
                 true,
             ]),
         ).toBe(false);
         expect(
-            asTupleN(asString, asBoolean, asNumber).test([
+            asTuple(asString, asBoolean, asNumber).test([
                 "string1",
                 true,
                 1,
                 null,
             ]),
         ).toBe(false);
-        expect(asTupleN(asString, asBoolean, asNumber).test(null)).toBe(false);
+        expect(asTuple(asString, asBoolean, asNumber).test(null)).toBe(false);
     });
 
     test("asConst.decode", () => {
