@@ -167,3 +167,6 @@ export class InternDecoder<T> extends Decoder<T> {
         this.test = config.test ?? this.decodeAsTest;
     }
 }
+
+/** Unwrap a Decoder<T> to T */
+export type Unwrap<T> = T extends Decoder<infer U> ? U : T;
