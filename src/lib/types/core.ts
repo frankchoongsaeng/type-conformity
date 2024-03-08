@@ -75,7 +75,7 @@ export type JoinKeys<T, U> = keyof T | keyof U;
  * Expands object types recursively
  * https://stackoverflow.com/questions/57683303/how-can-i-see-the-full-expanded-contract-of-a-typescript-type
  */
-type ExpandRecursively<T> = T extends object
+export type ExpandRecursively<T> = T extends object
     ? T extends infer O
         ? { [K in keyof O]: ExpandRecursively<O[K]> }
         : never

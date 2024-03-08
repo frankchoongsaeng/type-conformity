@@ -6,9 +6,10 @@ import {
     Merge,
     Pair,
     ExcludeField,
+    ExpandRecursively,
 } from "../types";
 import { failure, isObject, success, typeOf } from "../utils";
-import { Decoder } from "./decoder";
+import { Decoder, Unwrap } from "./decoder";
 
 /**
  * A specific decoder for objects having the shape of T.
@@ -123,6 +124,13 @@ export class ObjectDecoder<T> extends Decoder<T> {
         return newObjectDecoder;
     }
 
+    /**
+     * Takes a decoder of U and produces a decoder of T & U.
+     * Returns a decoder that can decode all fields of T and U into a single object.
+     *
+     * @param other object decoder
+     * @returns an object decoder of T & U
+     */
     and<U>(other: ObjectDecoder<U>): ObjectDecoder<T & U> {
         const andDecoder = new ObjectDecoder<T & U>();
         andDecoder.fields = { ...this.fields, ...other.fields };
@@ -159,3 +167,22 @@ export class ObjectDecoder<T> extends Decoder<T> {
  * ```
  */
 export const asObject: ObjectDecoder<{}> = new ObjectDecoder<{}>();
+
+type ObjectWithFieldDecoders = { [key: Key]: Decoder<any> };
+type UnwrapObjectValues<T> = ExpandRecursively<{
+    [K in keyof T]: Unwrap<T[K]>;
+}>;
+
+/**
+ * Utility for building object decoders using an object literal notation.
+ *
+ * @param obj object literal specifying fields and their decoders
+ * @returns object decoder of an infered object type.
+ */
+export function fromObject<T extends ObjectWithFieldDecoders>(
+    obj: T,
+): ObjectDecoder<UnwrapObjectValues<T>> {
+    return Object.entries(obj).reduce((objDec, [fieldName, fieldDecoder]) => {
+        return objDec.withField(fieldName, fieldDecoder);
+    }, asObject) as ObjectDecoder<UnwrapObjectValues<T>>;
+}

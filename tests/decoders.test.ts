@@ -18,6 +18,7 @@ import {
     DecodingException,
     asInt,
     InternDecoder,
+    fromObject,
 } from "../src";
 import { success, failure } from "../src/lib/utils";
 
@@ -325,6 +326,69 @@ describe("decoders", () => {
                 .withField("field1", asString)
                 .withField("field2", asNumber)
                 .test(null),
+        ).toBe(false);
+    });
+
+    test("fromObject.decode", () => {
+        expect(fromObject({}).decode({})).toHaveProperty("value", {});
+        expect(fromObject({}).decode({ field1: "hello" })).toHaveProperty(
+            "value",
+            {},
+        );
+        expect(
+            fromObject({ field1: asString }).decode({ field1: "string value" }),
+        ).toHaveProperty("value", { field1: "string value" });
+        expect(
+            fromObject({
+                field1: asString,
+                field2: asNumber,
+                field3: asBoolean,
+                field4: asNull,
+            }).decode({
+                field1: "string value",
+                field2: 2,
+                field3: false,
+                field4: null,
+            }),
+        ).toHaveProperty("value", {
+            field1: "string value",
+            field2: 2,
+            field3: false,
+            field4: null,
+        });
+        expect(
+            fromObject({ field1: asString, field2: asNumber }).decode({
+                field1: "string value",
+            }),
+        ).toHaveProperty(
+            "reason",
+            "$root.field2: expected number but got undefined",
+        );
+    });
+
+    test("fromObject.test", () => {
+        expect(fromObject({}).test({})).toBe(true);
+        expect(fromObject({}).test({ field1: "hello" })).toBe(true);
+        expect(
+            fromObject({ field1: asString }).test({ field1: "string value" }),
+        ).toBe(true);
+        expect(
+            fromObject({
+                field1: asString,
+                field2: asNumber,
+                field3: asBoolean,
+                field4: asNull,
+            }).test({
+                field1: "string value",
+                field2: 2,
+                field3: false,
+                field4: null,
+            }),
+        ).toBe(true);
+        expect(
+            fromObject({ field1: asString, field2: asNumber }).test({
+                field1: "string value",
+            }),
         ).toBe(false);
     });
 
