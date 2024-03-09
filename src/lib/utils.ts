@@ -11,6 +11,7 @@ import {
 /**
  * Transform a Path to it's string representation.
  *
+ * @group Utils
  * @param path Path
  * @returns string representation of the path
  */
@@ -30,7 +31,8 @@ export function printPath(path: Path): string {
  * // => $root.field[1]
  * ```
  *
- * @param path an array of Path
+ * @group Utils
+ * @param paths an array of Pathr
  * @returns string representation of the path
  */
 export function printPaths(paths: Array<Path>): string {
@@ -67,7 +69,8 @@ export function printPaths(paths: Array<Path>): string {
  * // $root.foo[2].bar: expected string but got number
  * ```
  *
- * @param errors all the decoding errors that occurred
+ * @group Utils
+ * @param failure the decoding failure that occurred
  * @returns pretty printed error string
  */
 export function prettyPrintFailureError(failure: DecodingFailure): string {
@@ -82,6 +85,7 @@ export function prettyPrintFailureError(failure: DecodingFailure): string {
 /**
  * Constructs a DecodingSuccess of type T that wraps a value of type T.
  *
+ * @group Utils
  * @param v value
  * @returns A DecodingSuccess object
  */
@@ -96,6 +100,7 @@ export function success<T>(v: T): DecodingSuccess<T> {
 /**
  * Constructs a DecodingFailure object with a reason.
  *
+ * @group Utils
  * @param errors reason for the decoding failure
  * @returns a DecodingFailure object
  */
@@ -150,7 +155,13 @@ function map<T>(
     return mapErrs(errors, []);
 }
 
-type TypeOf =
+/**
+ * All types
+ *
+ * @group Types
+ * @category Utils
+ */
+export type TypeOf =
     | "string"
     | "boolean"
     | "undefined"
@@ -166,6 +177,7 @@ type TypeOf =
  * An extension of the native javascript `typeof` test that differentiates
  * between null and arrays as thier own type.
  *
+ * @group Utils
  * @param arg value
  * @returns string representation of the type of value
  */
@@ -184,6 +196,7 @@ export function typeOf(arg: any): TypeOf {
  * Checks if an argument is an object.
  * Applies type narrowing in typescript.
  *
+ * @group Utils
  * @param arg argument to check
  * @returns true if argument is an object
  */
@@ -195,6 +208,7 @@ export function isObject(arg: unknown): arg is { [k: Key]: any } {
  * Checks if an argument is an array.
  * Applies type narrowing in typescript.
  *
+ * @group Utils
  * @param arg argument to check
  * @returns true if argument is an array
  */

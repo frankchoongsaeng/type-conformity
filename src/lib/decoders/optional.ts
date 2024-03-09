@@ -7,6 +7,7 @@ import { asCustom } from "./extras";
  * Takes a decoder for an item of type T and returns a decoder for
  * an OptionalValue<T> (which is an alias for undefined | null | T)
  *
+ * @group Decoders
  * @param itemDecoder decoder for item T
  * @returns decoder for optional T
  */
@@ -28,6 +29,7 @@ export function asOptionalValue<T>(
  * Takes a decoder for an item of type T and returns a decoder for
  * an Optional<T> (which is an alias for undefined | null | T)
  *
+ * @group Decoders
  * @param itemDecoder decoder for item T
  * @returns decoder for optional T
  */

@@ -3,6 +3,12 @@ import { failure, success } from "../utils";
 import { asNumber } from "./basic";
 import { Decoder, DecoderConfig, InternDecoder } from "./decoder";
 
+/**
+ * For creation of custom decoders.
+ *
+ * @group Types
+ * @category Decoders
+ */
 class CustomDecoder<T> extends InternDecoder<T> {
     constructor(config: DecoderConfig<T>) {
         super(config);
@@ -23,6 +29,8 @@ class CustomDecoder<T> extends InternDecoder<T> {
  *      return failure(`failed to decode value, expected one of 'accepted', 'rejected', 'in-review' but got ${value}`)
  *}, 'status decoder')
  * ```
+ *
+ * @group Decoders
  * @param decodeFn a decode function used in decoding a value to type T
  * @param testFn an optional test function used in testing a value for conformity to type T
  * @param name an optional name of your custom decoder
@@ -42,6 +50,8 @@ export function asCustom<T>(
 
 /**
  * Decoder that only knows how to decode an Integer.
+ *
+ * @group Decoders
  */
 export const asInt: Decoder<number> = asNumber.try(number => {
     if (Number.isInteger(number)) {
@@ -54,6 +64,8 @@ export const asInt: Decoder<number> = asNumber.try(number => {
 /**
  * A decoder that can decode anything.
  * It sets the type as `any`.
+ *
+ * @group Decoders
  */
 export const asAny: Decoder<any> = new CustomDecoder({
     name: "any",
@@ -63,6 +75,8 @@ export const asAny: Decoder<any> = new CustomDecoder({
 
 /**
  * Similar to `asAny`, but sets the type to `unknown`.
+ *
+ * @group Decoders
  */
 export const asUnknown: Decoder<unknown> = new CustomDecoder({
     name: "unknown",

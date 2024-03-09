@@ -14,24 +14,37 @@ import { Decoder, Unwrap } from "./decoder";
 /**
  * A specific decoder for objects having the shape of T.
  * Has additional methods for specifying the decoding rules of it's fields.
+ *
+ * @group Types
+ * @category Decoders
+ * @param T the type of the object this decoder can decode
  */
 export class ObjectDecoder<T> extends Decoder<T> {
     // the collection of fields and thier decoders
     private fields: { [key: Key]: [Decoder<any>, Key] } = {};
 
+    /** The name of this decoder _(useful for error reporting)_. */
     get name() {
         return `{${Object.entries(this.fields)
             .map(([name, [dec]]) => String(name) + ": " + dec.name)
             .join(", ")}}`;
     }
 
-    constructFieldError(failure: DecodingFailure, field: Key): DecodingError {
+    private constructFieldError(
+        failure: DecodingFailure,
+        field: Key,
+    ): DecodingError {
         return {
             path: { kind: "field", field },
             errors: failure.errors,
         };
     }
 
+    /**
+     * Decodes a value and either succeeds with the decoded object or fails with a reason.
+     *
+     * @param arg value to decode
+     */
     decode(arg: unknown): DecodingResult<T> {
         const obj: any = {};
         const errors: DecodingError[] = [];
@@ -165,17 +178,32 @@ export class ObjectDecoder<T> extends Decoder<T> {
  *       }
  *   }
  * ```
+ *
+ * @group Decoders
  */
 export const asObject: ObjectDecoder<{}> = new ObjectDecoder<{}>();
 
-type ObjectWithFieldDecoders = { [key: Key]: Decoder<any> };
-type UnwrapObjectValues<T> = ExpandRecursively<{
+/**
+ * An object whose values can only be Decoders.
+ *
+ * @group Types
+ * @category Utils
+ */
+export type ObjectWithFieldDecoders = { [key: Key]: Decoder<any> };
+/**
+ * Extracts types of values from an objects with decoder values.
+ *
+ * @group Types
+ * @category Utils
+ */
+export type UnwrapObjectValues<T> = ExpandRecursively<{
     [K in keyof T]: Unwrap<T[K]>;
 }>;
 
 /**
  * Utility for building object decoders using an object literal notation.
  *
+ * @group Decoders
  * @param obj object literal specifying fields and their decoders
  * @returns object decoder of an infered object type.
  */

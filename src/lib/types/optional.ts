@@ -1,5 +1,25 @@
+/**
+ * null or undefined
+ *
+ * @group Types
+ */
 export type NoValue = null | undefined;
+/**
+ * A value or NoValue
+ *
+ * @group Types
+ *
+ * @param T type of the value if any.
+ */
 export type OptionalValue<T> = T | NoValue;
+
+/**
+ * Not null or undefined
+ *
+ * @group Types
+ *
+ * @param T type of the value.
+ */
 export type NonOptionalType<T> = T extends null | undefined ? never : T;
 
 /**
@@ -8,6 +28,11 @@ export type NonOptionalType<T> = T extends null | undefined ? never : T;
  * An Optional is immutable and is a wrapper type of T | null | undefined
  * that provides useful functions for transformation and safe retrieval of
  * an optional value.
+ *
+ * @group Types
+ * @category Utils
+ *
+ * @param T type of the value within this optional.
  */
 export class Optional<T> {
     private constructor(private optValue: OptionalValue<T>) {}

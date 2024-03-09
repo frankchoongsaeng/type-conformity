@@ -3,6 +3,12 @@ import { success, failure, typeOf, isObject, isArray } from "../utils";
 import { Decoder } from "./decoder";
 
 // +++++++++++++++++ UNDEFINED DECODER ++++++++++++++++++++
+/**
+ * Decoder for undefined
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class UndefinedDecoder extends Decoder<undefined> {
     name = "undefined";
 
@@ -18,10 +24,18 @@ export class UndefinedDecoder extends Decoder<undefined> {
 
 /**
  * A decoder that can only decode value of undefined.
+ *
+ * @group Decoders
  */
 export const asUndefined: UndefinedDecoder = new UndefinedDecoder();
 
 // +++++++++++++++++ NULL DECODER ++++++++++++++++++++
+/**
+ * Decoder for null
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class NullDecoder extends Decoder<null> {
     name = "null";
 
@@ -37,10 +51,18 @@ export class NullDecoder extends Decoder<null> {
 
 /**
  * A decoder that can only decode value of null.
+ *
+ * @group Decoders
  */
 export const asNull: NullDecoder = new NullDecoder();
 
 // +++++++++++++++++ STRING DECODER ++++++++++++++++++++
+/**
+ * Decoder for string
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class StringDecoder extends Decoder<string> {
     name = "string";
 
@@ -57,12 +79,18 @@ export class StringDecoder extends Decoder<string> {
 
 /**
  * A decoder that can only decode a string.
+ *
+ * @group Decoders
  */
 export const asString: StringDecoder = new StringDecoder();
 
-asString.decode(56);
-
 // +++++++++++++++++ NUMBER DECODER ++++++++++++++++++++
+/**
+ * Abstract decoder for numbers.
+ *
+ * @group Types
+ * @category Decoders
+ */
 abstract class AbstractNumberDecoder<
     T extends number | bigint,
 > extends Decoder<T> {
@@ -79,6 +107,12 @@ abstract class AbstractNumberDecoder<
     }
 }
 
+/**
+ * Decoder for all numbers
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class NumberDecoder extends AbstractNumberDecoder<number> {
     name = "number";
 
@@ -95,6 +129,12 @@ export class NumberDecoder extends AbstractNumberDecoder<number> {
     }
 }
 
+/**
+ * Decoder for bigint.
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class BigIntDecoder extends AbstractNumberDecoder<bigint> {
     name = "bigint";
 
@@ -123,16 +163,26 @@ export class BigIntDecoder extends AbstractNumberDecoder<bigint> {
 
 /**
  * A decoder that can only decode a number.
+ *
+ * @group Decoders
  */
 export const asNumber: NumberDecoder = new NumberDecoder();
 
 /**
  * A decoder that can only decode a bigint.
  * If a regular integer is supplied, it gets decoded as a bigint.
+ *
+ * @group Decoders
  */
 export const asBigInt: BigIntDecoder = new BigIntDecoder();
 
 // +++++++++++++++++ BOOLEAN DECODER ++++++++++++++++++++
+/**
+ * Decoder for booelan
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class BooleanDecoder extends Decoder<boolean> {
     name = "boolean";
 
@@ -149,13 +199,34 @@ export class BooleanDecoder extends Decoder<boolean> {
 
 /**
  * A decoder that can only decode a boolean.
+ *
+ * @group Decoders
  */
 export const asBoolean: BooleanDecoder = new BooleanDecoder();
 
 // +++++++++++++++++ CONSTANT DECODER ++++++++++++++++++++
-type Primitive = number | string | boolean | bigint | null | undefined | symbol;
+/**
+ * All Javascript primitive types.
+ *
+ * @group Types
+ * @category Utils
+ */
+export type Primitive =
+    | number
+    | string
+    | boolean
+    | bigint
+    | null
+    | undefined
+    | symbol;
 
-type DeriveConstType<T> = T extends Primitive
+/**
+ * Narrows a type it's specific value.
+ *
+ * @group Types
+ * @category Utils
+ */
+export type DeriveConstType<T> = T extends Primitive
     ? { [K in keyof T]: K }
     : T extends []
       ? T
@@ -167,8 +238,20 @@ type DeriveConstType<T> = T extends Primitive
           }
         : never;
 
+/**
+ * A constant type.
+ *
+ * @group Types
+ * @category Utils
+ */
 type Const<T> = DeriveConstType<T>;
 
+/**
+ * Decoder for constants.
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class ConstDecoder<T> extends Decoder<Const<T>> {
     constructor(private value: Const<T>) {
         super();
@@ -237,6 +320,7 @@ export class ConstDecoder<T> extends Decoder<Const<T>> {
  *      //> fails because anotherInstance is not dbInstance
  * ```
  *
+ * @group Decoders
  * @param value constant value to decode for
  * @returns decoder for constant value
  */

@@ -1,0 +1,31 @@
+{
+    "name": "Type Conformity",
+    "entryPoints": ["./src"],
+    "out": "./web/docs",
+    "readme": "./README.md",
+    "emit": "docs",
+    "includeVersion": true,
+    "excludeNotDocumented": true,
+    "excludeNotDocumentedKinds": [
+        "Class",
+        "Interface",
+        "Constructor",
+        "ConstructorSignature",
+        "TypeAlias"
+    ],
+    "disableSources": true,
+    /** OUTPUT **/
+    "navigationLinks": {
+        "Examples": "https://github.com/frankchoongsaeng/type-conformity/tree/main/examples/src",
+        "Tutorials": "https://github.com/frankchoongsaeng/type-conformity/tree/main/docs/tutorials",
+        "Github": "https://github.com/frankchoongsaeng/type-conformity/"
+    },
+    "darkHighlightTheme": "dark-plus",
+    "navigation": {
+        "includeCategories": true,
+        "includeGroups": true,
+        "includeFolders": true
+    },
+    "categorizeByGroup": true,
+    "includes": "./docs/tutorials"
+}

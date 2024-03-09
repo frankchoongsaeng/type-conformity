@@ -2,6 +2,12 @@ import { DecodingError, DecodingFailure, DecodingResult } from "../types";
 import { failure, success } from "../utils";
 import { Decoder } from "./decoder";
 
+/**
+ * Decoder for arrays
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class ArrayDecoder<T> extends Decoder<Array<T>> {
     constructor(private itemDecoder: Decoder<T>) {
         super();
@@ -57,6 +63,7 @@ export class ArrayDecoder<T> extends Decoder<Array<T>> {
  * Takes a decoder for T, and produces a decoder that knows how to decode an
  * array of T elements, using the provided decoder.
  *
+ * @group Decoders
  * @param itemDecoder A decoder for the items of the array
  * @returns A decoder for an Array of T items
  */

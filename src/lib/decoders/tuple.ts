@@ -3,11 +3,29 @@ import { failure, success, isArray } from "../utils";
 import { ArrayDecoder } from "./array";
 import { Decoder } from "./decoder";
 
-type Tuple = [...any[]];
-type TupleItemDecoders<T extends Tuple> = {
+/**
+ * A tuple type.
+ *
+ * @group Types
+ * @category Utis
+ */
+export type Tuple = [...any[]];
+/**
+ * Creates a tuple of decoders from a tuple type.
+ *
+ * @group Types
+ * @category Utils
+ */
+export type TupleItemDecoders<T extends Tuple> = {
     [K in keyof T]: Decoder<T[K]>;
 };
 
+/**
+ * A decoder for tuples.
+ *
+ * @group Types
+ * @category Decoders
+ */
 export class TupleDecoder<T extends Tuple> extends ArrayDecoder<T> {
     constructor(private decs: TupleItemDecoders<T>) {
         super(decs[0]);
@@ -49,6 +67,7 @@ export class TupleDecoder<T extends Tuple> extends ArrayDecoder<T> {
  * Takes one or more decoders and produces a decoder for a Tuple of
  * elements decoder provided.
  *
+ * @group Decoders
  * @param firstItemDecoder A decoder for the first tuple item
  * @param decs A variable number of decoders for the other tuple items
  * @returns A decoder for a Tuple of [T1, ...TN]
