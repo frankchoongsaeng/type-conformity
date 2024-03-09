@@ -46,6 +46,7 @@
         "prettier": "3.2.5",
         "ts-jest": "^29.1.2",
         "typedoc": "^0.25.11",
+        "typedoc-material-theme": "^1.0.2",
         "typescript": "^5.3.3"
     }
 }
