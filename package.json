@@ -6,7 +6,7 @@
     "scripts": {
         "build": "tsc",
         "test": "jest",
-        "generate-api-doc": "tsdoc --types --dest=docs/API.md --src=src/lib/*",
+        "generate-web-doc": "typedoc",
         "publish-minor": "np --branch main minor",
         "publish-major": "np --branch main major",
         "publish-patch": "np --branch main patch",
