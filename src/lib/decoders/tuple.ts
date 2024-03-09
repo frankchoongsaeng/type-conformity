@@ -7,7 +7,7 @@ import { Decoder } from "./decoder";
  * A tuple type.
  *
  * @group Types
- * @category Utis
+ * @category Utils
  */
 export type Tuple = [...any[]];
 /**

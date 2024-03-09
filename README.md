@@ -4,6 +4,8 @@ TypeConformity is a simple TypeScript/JavaScript library designed to help us dev
 
 Simply put, it can be used to _assert_ that data is what we _expect_. You can think of it as a runtime type checker for JavaScript.
 
+> **Complete documentation can be found [here](https://frankchoongsaeng.github.io/type-conformity/)**
+
 ## Getting Started
 
 TypeConformity is developed with TypeScript but is fully compatible with JavaScript as well.
@@ -186,8 +188,8 @@ This approach allows you to define additional methods and fields that can be cal
 
 ### API
 
-There's many more ways of working with decoders that just can fit into this document, but you can find TypeConformity's full API documentatio
-[here.](/docs/API.md)
+There's many more ways of working with decoders that just can fit into this document, but you can find TypeConformity's full API documentation
+[here.](https://frankchoongsaeng.github.io/type-conformity/modules.html)
 
 ### Caveats
 
