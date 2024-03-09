@@ -1,9 +1,10 @@
 {
     "name": "Type Conformity",
     "entryPoints": ["./src"],
-    "out": "./web/docs",
+    "out": "./web",
     "readme": "./README.md",
     "emit": "docs",
+    "githubPages": true,
     "includeVersion": true,
     "excludeNotDocumented": true,
     "excludeNotDocumentedKinds": [
