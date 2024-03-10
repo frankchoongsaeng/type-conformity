@@ -16,7 +16,8 @@
     ],
     "disableSources": true,
     /** OUTPUT **/
-    "navigationLinks": {
+    "customCss": "./index.css",
+    "sidebarLinks": {
         "Examples": "https://github.com/frankchoongsaeng/type-conformity/tree/main/examples/src",
         "Tutorials": "https://github.com/frankchoongsaeng/type-conformity/tree/main/docs/tutorials",
         "Github": "https://github.com/frankchoongsaeng/type-conformity/"

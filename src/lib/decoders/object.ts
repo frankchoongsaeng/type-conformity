@@ -149,6 +149,13 @@ export class ObjectDecoder<T> extends Decoder<T> {
         andDecoder.fields = { ...this.fields, ...other.fields };
         return andDecoder;
     }
+
+    withConditionalField<K extends keyof T, V>(
+        field: K,
+        dec: Decoder<V>,
+    ): Merge<Pair<Key, V>, T> {
+        throw "";
+    }
 }
 
 /**

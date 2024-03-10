@@ -234,17 +234,17 @@ const asUser: Decoder<User> = asObject
 
 There are a few examples and tutorials showing how TypeConformity can be used in different use cases.
 
--   [Data Validation for RESTful Service Endpoint using TypeConformity](/docs/tutorials/validating-data-from-restful-service.md)
--   [Using TypeConformity for Form Validation in a Web Application](/docs/tutorials/validating-form-data-in-a-web-application.md)
--   [Examples](/examples/src/)
+-   [Data Validation for RESTful Service Endpoint using TypeConformity](https://github.com/frankchoongsaeng/type-conformity/tree/main/docs/tutorials/validating-data-from-restful-service.md)
+-   [Using TypeConformity for Form Validation in a Web Application](https://github.com/frankchoongsaeng/type-conformity/tree/main/docs/tutorials/validating-form-data-in-a-web-application.md)
+-   [Examples](https://github.com/frankchoongsaeng/type-conformity/tree/main/examples/src/)
 
 ### Contributing
 
-We'll be thrilled to welcome your contributions to TypeConformity. Before you get started, please take a moment to review the [Contributing Guide](/CONTRIBUTING.md).
+We'll be thrilled to welcome your contributions to TypeConformity. Before you get started, please take a moment to review the [Contributing Guide](https://github.com/frankchoongsaeng/type-conformity/blob/main/CONTRIBUTING.md).
 
 ### License
 
-[MIT License](/LICENSE.md)
+[MIT License](https://github.com/frankchoongsaeng/type-conformity/blob/main/LICENSE.md)
 
 ### Technical Info
 
