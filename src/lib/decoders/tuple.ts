@@ -1,6 +1,5 @@
-import { DecodingResult } from "../types";
+import { DecodingError, DecodingFailure, DecodingResult } from "../types";
 import { failure, success, isArray } from "../utils";
-import { ArrayDecoder } from "./array";
 import { Decoder } from "./decoder";
 
 /**
@@ -26,13 +25,23 @@ export type TupleItemDecoders<T extends Tuple> = {
  * @group Types
  * @category Decoders
  */
-export class TupleDecoder<T extends Tuple> extends ArrayDecoder<T> {
+export class TupleDecoder<T extends Tuple> extends Decoder<T> {
     constructor(private decs: TupleItemDecoders<T>) {
-        super(decs[0]);
+        super();
     }
 
     get name() {
         return `Tuple<${this.decs.map(d => d.name).join(", ")}>`;
+    }
+
+    protected constructIndexError(
+        failure: DecodingFailure,
+        index: number,
+    ): DecodingError {
+        return {
+            path: { kind: "index", index },
+            errors: failure.errors,
+        };
     }
 
     decode(tup: unknown): DecodingResult<T> {
@@ -66,6 +75,13 @@ export class TupleDecoder<T extends Tuple> extends ArrayDecoder<T> {
 /**
  * Takes one or more decoders and produces a decoder for a Tuple of
  * elements decoder provided.
+ *
+ * Example
+ * ```ts
+ * asTuple(asConst("archived")) // Decoder<["archived"]>
+ * asTuple(asString, asInt) // Decoder<[string, int]>
+ * asTuple(asString, asInt, asBoolean) // Decoder<[string, int, boolean]>
+ * ```
  *
  * @group Decoders
  * @param firstItemDecoder A decoder for the first tuple item
