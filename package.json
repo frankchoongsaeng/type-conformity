@@ -7,9 +7,10 @@
         "build": "tsc",
         "test": "jest",
         "generate-web-doc": "typedoc",
-        "publish-minor": "np --branch main minor",
-        "publish-major": "np --branch main major",
-        "publish-patch": "np --branch main patch",
+        "prepublish": "npm run build && npm run generate-web-doc",
+        "publish-minor": "npm run prepublish && np --branch main minor",
+        "publish-major": "npm run prepublish && np --branch main major",
+        "publish-patch": "npm run prepublish && np --branch main patch",
         "prepare": "husky"
     },
     "lint-staged": {
